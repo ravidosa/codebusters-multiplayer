@@ -1,4 +1,4 @@
-const webSocketsServerPort = process.env.PORT || 5000;
+const webSocketsServerPort = process.env.PORT || 3000;
 const webSocketServer = require('websocket').server;
 const path = require('path');
 const http = require('http');
@@ -6,6 +6,7 @@ const express = require('express');
 const app = express();
 // Spinning the http server and the websocket server.
 const server = http.createServer();
+server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
   httpServer: server
 });
