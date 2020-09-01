@@ -1,15 +1,20 @@
-const webSocketsServerPort = process.env.PORT || 3000;
-const webSocketServer = require('websocket').server;
+const express = require('express');
+const { Server } = require('ws');
+
+const PORT = process.env.PORT || 3000;
+const INDEX = '/index.html';
+
 const path = require('path');
 const http = require('http');
-const express = require('express');
-const app = express();
-// Spinning the http server and the websocket server.
-const server = http.createServer();
-server.listen(webSocketsServerPort);
-const wsServer = new webSocketServer({
-  httpServer: server
+const app = express()
+.use(express.static(path.join(__dirname, "..", "build")))
+.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, "..", "build", "index.html"));
+})
+.listen(webSocketsServerPort, () => {
+  console.log("server started on port 5000");
 });
+const wss = new Server({ server });
 
 // Generates unique ID for every new connection
 const getUniqueID = () => {
@@ -45,7 +50,7 @@ const typesDef = {
   MULTI_COMPLETE: "multicomp"
 }
 
-wsServer.on('request', function(request) {
+wss.on('connection', function(request) {
   var userID = getUniqueID();
   //console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   // You can rewrite this part of the code to accept only the requests from allowed origin
@@ -103,14 +108,4 @@ wsServer.on('request', function(request) {
     delete users[userID];
     sendMessage(JSON.stringify(json));
   });
-});
-
-app.use(express.static(path.join(__dirname, "..", "build")));
-
-app.use((req, res, next) => {
-  res.sendFile(path.join(__dirname, "..", "build", "index.html"));
-});
-
-app.listen(webSocketsServerPort, () => {
-  console.log("server started on port 5000");
 });
