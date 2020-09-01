@@ -1,4 +1,4 @@
-const webSocketsServerPort = 3000;
+const webSocketsServerPort = process.env.PORT || 5000;
 const webSocketServer = require('websocket').server;
 const path = require('path');
 const http = require('http');
@@ -6,7 +6,6 @@ const express = require('express');
 const app = express();
 // Spinning the http server and the websocket server.
 const server = http.createServer();
-server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
   httpServer: server
 });
@@ -111,6 +110,6 @@ app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
 
-app.listen(process.env.PORT || 5000, () => {
+app.listen(webSocketsServerPort, () => {
   console.log("server started on port 5000");
 });
