@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 const INDEX = '/index.html';
 
 const path = require('path');
-const app = express()
+const server = express()
 .use(express.static(path.join(__dirname, "..", "build")))
 .use((req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "build", "index.html"));
