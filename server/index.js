@@ -5,13 +5,12 @@ const PORT = process.env.PORT || 3000;
 const INDEX = '/index.html';
 
 const path = require('path');
-const http = require('http');
 const app = express()
 .use(express.static(path.join(__dirname, "..", "build")))
 .use((req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 })
-.listen(webSocketsServerPort, () => {
+.listen(PORT, () => {
   console.log("server started on port 5000");
 });
 const wss = new Server({ server });
