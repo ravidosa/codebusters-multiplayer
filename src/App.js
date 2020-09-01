@@ -1,10 +1,9 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-unused-expressions */
 import React, { Component } from 'react';
-import { w3cwebsocket as W3CWebSocket } from "websocket";
 import './App.css';
 
-const client = new W3CWebSocket(location.origin.replace(/^http/, 'ws'));
+const client = new WebSocket(location.origin.replace(/^http/, 'ws'));
 const contentDefaultMessage = "Start writing your document here";
 const en_alphabet = "abcdefghijklmnopqrstuvwxyz"
 const es_alphabet = "abcdefghijklmnñopqrstuvwxyz"
