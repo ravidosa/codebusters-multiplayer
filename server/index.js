@@ -49,7 +49,7 @@ const typesDef = {
   MULTI_COMPLETE: "multicomp"
 }
 
-wss.on('connection', function(request) {
+wss.on('request', function(request) {
   var userID = getUniqueID();
   //console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   // You can rewrite this part of the code to accept only the requests from allowed origin
