@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import './App.css';
 
-const client = new W3CWebSocket('ws://192.168.86.21:3000');
+const client = new W3CWebSocket('https://codebusters-multiplayer.herokuapp.com');
 const contentDefaultMessage = "Start writing your document here";
 const en_alphabet = "abcdefghijklmnopqrstuvwxyz"
 const es_alphabet = "abcdefghijklmnñopqrstuvwxyz"
