@@ -1,9 +1,10 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-unused-expressions */
 import React, { Component } from 'react';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 import './App.css';
 
-const client = new WebSocket(location.origin.replace(/^http/, 'ws'));
+const client = new W3CWebSocket(location.origin.replace(/^http/, 'ws'));
 const contentDefaultMessage = "Start writing your document here";
 const en_alphabet = "abcdefghijklmnopqrstuvwxyz"
 const es_alphabet = "abcdefghijklmnñopqrstuvwxyz"
@@ -308,7 +309,7 @@ class Cipher extends Component {
 
   computeScore(question) {
     let mistakes = 0;
-    if (question.probType !== "Baconian Cipher") {
+    if (question.type !== "baconian") {
       for (let i = 0; i < question.alphabet.length; i++) {
         if (question.alphabet.split("")[i].localeCompare(question.guesses[question.alphabet.indexOf(question.mapping[i])].charAt(0)) && question.plaintext.indexOf(question.alphabet.split("")[i]) !== -1) {
           mistakes += 1;
