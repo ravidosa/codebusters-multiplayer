@@ -1,0 +1,121 @@
+body {
+	height: 100vh;
+	margin: 0;
+	display: grid;
+	align-content: center;
+	font-family: monospace;
+	word-wrap: break-word;
+	background-color: #fff;
+	background-image: linear-gradient(0deg, transparent .05em, rgba(0,0,0,.05) .05em, rgba(0,0,0,.05) .125000em, transparent .125000em), linear-gradient(90deg, rgba(0,0,0,.05) .062500em, transparent .062500em);
+	background-size: .75em .75em;
+	background-position: center;
+}
+#root {
+	text-align: center;
+}
+.box, .buttonchoice {
+	width: 75vw;
+	overflow-x: hidden;
+	word-wrap: break-word;
+	margin: 0 auto;
+}
+.box {
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	word-wrap: break-word;
+}
+.buttonchoice {
+	display: block;
+	text-align: left;
+}
+.box h1 {
+	font-size: 20px;
+  }
+.word {
+	margin-right: 5px;
+	margin-bottom: 5px;
+	background-color: #eaeaea;
+	padding: 2px;
+	border-radius: 2px;
+}
+div.login {
+	display: block;
+}
+div {
+	display: inline-block;
+}
+.letter > div {
+	display: block;
+	pointer-events: none;
+}
+.selected, .warning {
+	color: #ff0000;
+}
+.stopwatch-display {
+	padding: 10px 0;
+}
+.stopwatch {
+	margin-left: 0 auto;
+	width: 100%;
+	text-align: center;
+	margin-bottom: 10px;
+}
+button {
+	background-color: #202b33;
+	border: solid 1px transparent;
+	border-radius: 4px;
+	padding: 2px 5px;
+	color: #ffffff;
+	font-size: 1vw;
+	cursor: pointer;
+	font-family: monospace;
+}
+button:hover {
+	background-color: #106ba3;
+}
+.prevnext {
+	width: 100%;
+	text-align: center;
+	margin-bottom: 10px;
+}
+table {
+	margin-top: 10px;
+}
+table > * {
+	font-size: 1vw;
+}
+h5, h6 {
+	text-align: center;
+	margin-bottom: 10px !important;
+}
+h1 {
+	text-align: center;
+}
+.prevnext > button, .stopwatch > button {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.hero {
+	width: 20%;
+	margin: 0 auto;
+
+}
+.container {
+	width: 100% !important;
+	max-width: 100% !important;
+}
+input {
+	margin-bottom: 10px;
+}
+.buttonchoice {
+	margin-bottom: -3px;
+	border-bottom: 2px solid #202b33;
+	white-space: nowrap;
+}
+.buttonchoice > button {
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+.bigh {
+	margin-top: 10px !important;
+}
