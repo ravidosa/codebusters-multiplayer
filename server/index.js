@@ -56,55 +56,55 @@ wss.on('request', function(request) {
   const connection = request.accept(null, request.origin);
   clients[userID] = connection;
   console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+});
 
-  connection.on('message', function(message) {
-    if (message.type === 'utf8') {
-      const dataFromClient = JSON.parse(message.utf8Data);
-      const json = { type: dataFromClient.type };
+wss.on('message', function(message) {
+  if (message.type === 'utf8') {
+    const dataFromClient = JSON.parse(message.utf8Data);
+    const json = { type: dataFromClient.type };
 
-      if (dataFromClient.type === typesDef.USER_EVENT) {
-        users[userID] = dataFromClient;
-        console.log(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`)
-        userActivity.push(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`);
-        if (!rooms[dataFromClient.room]) {
-          rooms[dataFromClient.room] = {connections: [userID]}
-          json.data = {users: users, userActivity: userActivity, message: "newroom", data: dataFromClient};
-        }
-        else {
-          rooms[dataFromClient.room]["connections"].push(userID)
-          json.data = {users: users, userActivity: userActivity, message: "joinroom", data: dataFromClient};
-        }
-        console.log(users, rooms)
+    if (dataFromClient.type === typesDef.USER_EVENT) {
+      users[userID] = dataFromClient;
+      console.log(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`)
+      userActivity.push(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`);
+      if (!rooms[dataFromClient.room]) {
+        rooms[dataFromClient.room] = {connections: [userID]}
+        json.data = {users: users, userActivity: userActivity, message: "newroom", data: dataFromClient};
       }
-
-      else if (dataFromClient.type === typesDef.MULTI_START) {
-        json.data = {users: users, userActivity: userActivity, message: "multistart", questions: dataFromClient.questions};
+      else {
+        rooms[dataFromClient.room]["connections"].push(userID)
+        json.data = {users: users, userActivity: userActivity, message: "joinroom", data: dataFromClient};
       }
-
-      else if (dataFromClient.type === typesDef.MULTI_CHANGE) {
-        json.data = {users: users, userActivity: userActivity, message: "multichange", questions: dataFromClient.questions};
-      }
-
-      else if (dataFromClient.type === typesDef.MULTI_COMPLETE) {
-        json.data = {users: users, userActivity: userActivity, message: "multicomp"};
-      }
-      
-      else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-        editorContent = dataFromClient.content;
-        json.data = { editorContent, userActivity };
-      }
-
-      sendMessage(JSON.stringify(json));
+      console.log(users, rooms)
     }
-  });
 
-  // user disconnected
-  connection.on('close', function(connection) {
-    console.log((new Date()) + " Peer " + userID + " disconnected.");
-    const json = { type: typesDef.USER_EVENT };
-    json.data = {users: users, userActivity: userActivity, message: "userleave"};
-    delete clients[userID];
-    delete users[userID];
+    else if (dataFromClient.type === typesDef.MULTI_START) {
+      json.data = {users: users, userActivity: userActivity, message: "multistart", questions: dataFromClient.questions};
+    }
+
+    else if (dataFromClient.type === typesDef.MULTI_CHANGE) {
+      json.data = {users: users, userActivity: userActivity, message: "multichange", questions: dataFromClient.questions};
+    }
+
+    else if (dataFromClient.type === typesDef.MULTI_COMPLETE) {
+      json.data = {users: users, userActivity: userActivity, message: "multicomp"};
+    }
+    
+    else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
+      editorContent = dataFromClient.content;
+      json.data = { editorContent, userActivity };
+    }
+
     sendMessage(JSON.stringify(json));
-  });
+  }
+});
+
+// user disconnected
+wss.on('close', function(connection) {
+  console.log((new Date()) + " Peer " + userID + " disconnected.");
+  const json = { type: typesDef.USER_EVENT };
+  json.data = {users: users, userActivity: userActivity, message: "userleave"};
+  delete clients[userID];
+  delete users[userID];
+  sendMessage(JSON.stringify(json));
 });
