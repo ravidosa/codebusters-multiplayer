@@ -48,24 +48,24 @@ wss.on('connection', function connection(ws) {
       userActivity.push(`${dataFromClient.username} joined room ${dataFromClient.room}`);
       if (!rooms[dataFromClient.room]) {
         rooms[dataFromClient.room] = {connections: [userID]}
-        json.data = {users: Array.from(wss.clients), message: "newroom", data: dataFromClient};
+        json.data = {users: Array.from(wss.clients).map(a => {return {userID: a.userID, room: a.room, username: a.username}}), message: "newroom", data: dataFromClient};
       }
       else {
         rooms[dataFromClient.room]["connections"].push(userID)
-        json.data = {users: Array.from(wss.clients), message: "joinroom", data: dataFromClient};
+        json.data = {users: Array.from(wss.clients).map(a => {return {userID: a.userID, room: a.room, username: a.username}}), message: "joinroom", data: dataFromClient};
       }
     }
 
     else if (dataFromClient.type === typesDef.MULTI_START) {
-      json.data = {users: Array.from(wss.clients), message: "multistart", questions: dataFromClient.questions};
+      json.data = {users: Array.from(wss.clients).map(a => {return {userID: a.userID, room: a.room, username: a.username}}), message: "multistart", questions: dataFromClient.questions};
     }
 
     else if (dataFromClient.type === typesDef.MULTI_CHANGE) {
-      json.data = {users: Array.from(wss.clients), message: "multichange", questions: dataFromClient.questions};
+      json.data = {users: Array.from(wss.clients).map(a => {return {userID: a.userID, room: a.room, username: a.username}}), message: "multichange", questions: dataFromClient.questions};
     }
 
     else if (dataFromClient.type === typesDef.MULTI_COMPLETE) {
-      json.data = {users: Array.from(wss.clients), message: "multicomp"};
+      json.data = {users: Array.from(wss.clients).map(a => {return {userID: a.userID, room: a.room, username: a.username}}), message: "multicomp"};
     }
 
     else if (dataFromClient.type === typesDef.LOADING) {

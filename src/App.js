@@ -467,6 +467,7 @@ class Cipher extends Component {
       let stateToChange = {};
       if (dataFromServer.type === "userevent") {
         stateToChange = this.state.userInfo
+        console.log(dataFromServer.data.users)
         stateToChange.team = Object.values(dataFromServer.data.users).filter(user => user.room === this.state.userInfo.roomCode);
         this.setState({userInfo: stateToChange})
       }
