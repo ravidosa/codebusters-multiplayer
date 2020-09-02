@@ -12,7 +12,7 @@ const baconian = ["aaaaa", "aaaab", "aaaba", "aaabb", "aabaa", "aabab", "aabba",
 const alt_baconian = [{a: "a", b: "b"}, {a: "b", b: "a"}, {a: "1", b: "0"}, {a: "0", b: "1"}, {a: "/", b: "\\"}, {a: "\\", b: "/"}, {a: "╩", b: "╦"}, {a: "╦", b: "╩"}, {a: "Ṿ", b: "Å"}, {a: "Å", b: "Ṿ"}]
 const mangled_words = {"I": "eye", "your": "you're", "you": "ewe", "time": "thyme", "all": "awl", "the": "teh", "one": "won", "sees": "seize", "life": "lief", "for": "four", "to": "two", "choose": "chews", "do": "dew", "not": "knot", "see": "sea", "world": "whirled", "soul": "sole", "be": "bee", "in": "inn", "driving": "dirving", "we": "wee", "have": "halve", "waiter": "wader", "or": "oar", "you'll": "yule", "better": "bettor", "but": "butt", "and": "adn", "their": "there", "years": "yaers", "find": "fined", "by": "buy", "greater": "grater", "take": "taek", "shown": "shone", "told": "tolled", "plate": "plait", "back": "back", "scientist": "scnetiist", "new": "knew", "would": "wood", "an": "in", "that": "taht", "there's": "theirs", "some": "sum", "birth": "berth", "which": "witch", "right": "write", "great": "grate"}
 
-class Cipher extends Component {
+class App extends Component {
   
   constructor(props) {
     super(props)
@@ -31,7 +31,6 @@ class Cipher extends Component {
       }, 
       selectedLetter: "",
       currQ: -1,
-      probType: "",
       score: [0, 0],
       questions: [],
       probState: 3,
@@ -58,7 +57,7 @@ class Cipher extends Component {
       if (event.key === "`") {
         event.key = "ñ"
       }
-      if (this.state.probType !== "Baconian Cipher") {
+      if (this.state.questions[this.state.currQ].type !== "baconian") {
         if (this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter) !== -1) {
             let newguess = this.state.questions[this.state.currQ].guesses;
             newguess[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)] = event.key;
@@ -66,7 +65,7 @@ class Cipher extends Component {
             this.setState({ guesses: newguess, selectedLetter: this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1))]});
         }
       }
-      if (this.state.probType === "Baconian Cipher") {
+      if (this.state.questions[this.state.currQ].type === "baconian") {
           let newguess = this.state.questions[this.state.currQ].guesses;
           newguess[this.state.questions[this.state.currQ].mapping.indexOf(this.state.selectedLetter)] = event.key;
           this.setState({ guesses: newguess});
@@ -79,7 +78,7 @@ class Cipher extends Component {
   }
 
   selectLetter(event) {
-    if (this.state.probType !== "Baconian Cipher") {
+    if (this.state.questions[this.state.currQ].type !== "baconian") {
       if (event.target.innerText[0].match(/[ña-z]/i)) {
         this.setState({ selectedLetter: event.target.innerText[0]});
       }
@@ -90,7 +89,6 @@ class Cipher extends Component {
   }
 
   async getProb(probType) {
-    this.setState({probType: (probType === 'aristocrat' ? "Aristocrat Cipher" : probType === 'affine' ? "Affine Cipher" : probType === 'patristocrat' ? "Patristocrat Cipher" : probType === 'atbash' ? "Atbash Cipher" : probType === 'caesar' ? "Caesar Cipher" : probType === 'xenocrypt' ? "Xenocrypt" : probType === 'baconian' ? "Baconian Cipher": null)})
     let array = (probType !== 'xenocrypt' ? en_alphabet : es_alphabet).split("");
     let a, b = null;
     let hint, encoding = "";
@@ -238,7 +236,7 @@ class Cipher extends Component {
       this.setState({currQ: this.state.currQ + 1});
     }
     else {
-      this.getProb(this.state.probType.split(" ")[0].toLowerCase());
+      this.getProb(this.state.questions[this.state.currQ].type);
     }
   }
 
@@ -248,7 +246,7 @@ class Cipher extends Component {
 
   checkProb() {
     let mistakes = 0;
-    if (this.state.probType !== "Baconian Cipher") {
+    if (this.state.questions[this.state.currQ].type !== "baconian") {
       for (let i = 0; i < this.state.questions[this.state.currQ].alphabet.length; i++) {
         if (this.state.questions[this.state.currQ].alphabet.split("")[i].localeCompare(this.state.questions[this.state.currQ].guesses[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].mapping[i])].charAt(0)) && this.state.questions[this.state.currQ].plaintext.indexOf(this.state.questions[this.state.currQ].alphabet.split("")[i]) !== -1) {
           mistakes += 1;
@@ -278,7 +276,7 @@ class Cipher extends Component {
   }
 
   async startMarathon() {
-    this.setState({probState: 1, score: [0, 0], questions: [], marathon: true, multiplayer: false, probType: "Aristocrat Cipher", currQ: -1})
+    this.setState({probState: 1, score: [0, 0], questions: [], marathon: true, multiplayer: false, currQ: -1})
     await this.stopTimer();
     await this.resetTimer();
     await this.getProb("aristocrat");
@@ -441,7 +439,7 @@ class Cipher extends Component {
       await this.getProb(["aristocrat", "atbash", "caesar", "patristocrat", "affine", "baconian", "xenocrypt"][Math.floor(Math.random() * 7)]);
     }
     //console.log(this.state.questions)
-    this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0})
+    this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, currQ: 0})
     this.startTimer();
     client.send(JSON.stringify({
       questions: this.state.questions,
@@ -453,7 +451,7 @@ class Cipher extends Component {
     await this.stopTimer();
     await this.resetTimer();
     await this.getProb(probType);
-    this.setState({probType: (probType === 'aristocrat' ? "Aristocrat Cipher" : probType === 'affine' ? "Affine Cipher" : probType === 'patristocrat' ? "Patristocrat Cipher" : probType === 'atbash' ? "Atbash Cipher" : probType === 'caesar' ? "Caesar Cipher" : probType === 'xenocrypt' ? "Xenocrypt" : probType === 'baconian' ? "Baconian Cipher": null), probState: 1})
+    this.setState({probState: 1})
     this.startTimer(); 
   }
 
@@ -463,18 +461,16 @@ class Cipher extends Component {
     };
     client.onmessage = async (message) => {
       const dataFromServer = JSON.parse(message.data);
-      console.log(dataFromServer)
       let stateToChange = {};
       if (dataFromServer.type === "userevent") {
         stateToChange = this.state.userInfo
-        console.log(dataFromServer.data.users)
         stateToChange.team = Object.values(dataFromServer.data.users).filter(user => user.room === this.state.userInfo.roomCode);
         this.setState({userInfo: stateToChange})
       }
       else if (dataFromServer.type === "multistart") {
         await this.stopTimer();
         await this.resetTimer();
-        this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0, questions: dataFromServer.data.questions})
+        this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, currQ: 0, questions: dataFromServer.data.questions})
         this.startTimer();
       }
       else if (dataFromServer.type === "multichange") {
@@ -492,18 +488,16 @@ class Cipher extends Component {
 
     };
   }
-
-  componentWillUnmount() {
-    client.onclose = () => {
-      console.log('WebSocket Client Disonnected', this.state.name);
-    };
-  }
   
   render() {
     let centiseconds = ("0" + (Math.floor(this.state.timer.timerTime / 10) % 100)).slice(-2);
     let seconds = ("0" + (Math.floor(this.state.timer.timerTime / 1000) % 60)).slice(-2);
     let minutes = ("0" + (Math.floor(this.state.timer.timerTime / 60000) % 60)).slice(-2);
     let hours = ("0" + Math.floor(this.state.timer.timerTime / 3600000)).slice(-2);
+    let probType;
+    if (this.state.questions[this.state.currQ]) {
+      probType = (this.state.questions[this.state.currQ].type === 'aristocrat' ? "Aristocrat Cipher" : this.state.questions[this.state.currQ].type === 'affine' ? "Affine Cipher" : this.state.questions[this.state.currQ].type === 'patristocrat' ? "Patristocrat Cipher" : this.state.questions[this.state.currQ].type === 'atbash' ? "Atbash Cipher" : this.state.questions[this.state.currQ].type === 'caesar' ? "Caesar Cipher" : this.state.questions[this.state.currQ].type === 'xenocrypt' ? "Xenocrypt" : this.state.questions[this.state.currQ].type === 'baconian' ? "Baconian Cipher": null)
+    }
     return <div className="container">
       <span id="buttonchoice" className="buttonchoice">
         <button className="problemtype" id="aristocrat" onClick={() => this.startRun("aristocrat")}>aristocrat</button>
@@ -527,13 +521,13 @@ class Cipher extends Component {
           <button onClick={this.startMarathon}>start</button>
         </div>
       )}
-      {(this.state.probState === 1) && this.state.probType && this.state.questions.length > 0 && (
+      {(this.state.probState === 1) && probType && this.state.questions.length > 0 && (
         <div className={`box content`} tabIndex={-1} onKeyDown={this.setLetter}>
-        <h1>{this.state.probType}</h1>
-        {this.state.probType !== "Baconian Cipher" && (
-          <p>{`Solve this code by ${this.state.questions[this.state.currQ].source} which has been ${(this.state.questions[this.state.currQ].mangle ? "badly misheard and" : "")} encoded as a${("AEIOU".indexOf(this.state.probType.charAt(0)) !== -1 ? "n" : "") + " " + this.state.probType}${(this.state.questions[this.state.currQ].encoding.length > 0 ? " using a " + this.state.questions[this.state.currQ].encoding + " alphabet" : "")}.`}</p>
+        <h1>{probType}</h1>
+        {probType !== "Baconian Cipher" && (
+          <p>{`Solve this code by ${this.state.questions[this.state.currQ].source} which has been ${(this.state.questions[this.state.currQ].mangle ? "badly misheard and" : "")} encoded as a${("aeiou".indexOf(this.state.questions[this.state.currQ].type.charAt(0)) !== -1 ? "n" : "") + " " + probType}${(this.state.questions[this.state.currQ].encoding.length > 0 ? " using a " + this.state.questions[this.state.currQ].encoding + " alphabet" : "")}.`}</p>
         )}
-        {this.state.probType === "Baconian Cipher" && (
+        {probType === "Baconian Cipher" && (
           <p>{`Solve this message which has been encoded as a Baconian Cipher.`}</p>
         )}
         {this.state.questions[this.state.currQ].hint && this.state.questions[this.state.currQ].hint.length > 0 && (
@@ -542,7 +536,7 @@ class Cipher extends Component {
         {this.state.questions[this.state.currQ].error && this.state.questions[this.state.currQ].error.length > 0 && (
           <p className="warning">{this.state.questions[this.state.currQ].error}</p>
         )}
-        {this.state.probType !== "Baconian Cipher" && (
+        {probType !== "Baconian Cipher" && (
             this.state.questions[this.state.currQ].plaintext.toLowerCase().split(" ").map((word, index) => {
                 return(
                     <div className="word" onClick={this.selectLetter}>
@@ -570,7 +564,7 @@ class Cipher extends Component {
                 )
             })
         )}
-        {this.state.probType === "Baconian Cipher" && (
+        {probType === "Baconian Cipher" && (
             <div className="word" onClick={this.selectLetter}>
                 {
                     this.state.questions[this.state.currQ].plaintext.split("").map((letter, index) => {
@@ -594,7 +588,7 @@ class Cipher extends Component {
                 }
             </div>
         )}
-        {this.state.probType !== "Baconian Cipher" && (
+        {probType !== "Baconian Cipher" && (
             <table>
               <tbody>
                 <tr>
@@ -703,34 +697,6 @@ class Cipher extends Component {
     </div>;
   }
   
-}
-
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentUsers: [],
-      userActivity: [],
-      username: null,
-      text: ''
-    };
-  }
-
-  /* When content changes, we send the
-current content of the editor to the server. */
- onEditorStateChange = (text) => {
-   client.send(JSON.stringify({
-     type: "contentchange",
-     username: this.state.username,
-     content: text
-   }));
- };
-
-  render() {
-    return (
-      <Cipher></Cipher>
-    );
-  }
 }
 
 export default App;
