@@ -33,14 +33,6 @@ let editorContent = null;
 let userActivity = [];
 
 
-
-const sendMessage = (json) => {
-  // We are sending the current data to all connected clients
-  Object.keys(clients).map((client) => {
-    clients[client].sendUTF(json);
-  });
-}
-
 const typesDef = {
   USER_EVENT: "userevent",
   CONTENT_CHANGE: "contentchange",
@@ -49,18 +41,11 @@ const typesDef = {
   MULTI_COMPLETE: "multicomp"
 }
 
-wss.on('request', function(request) {
-  var userID = getUniqueID();
-  //console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-  // You can rewrite this part of the code to accept only the requests from allowed origin
-  const connection = request.accept(null, request.origin);
-  clients[userID] = connection;
-  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
-});
 
-wss.on('message', function(message) {
-  if (message.type === 'utf8') {
-    const dataFromClient = JSON.parse(message.utf8Data);
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(message) {
+    console.log(message)
+    const dataFromClient = JSON.parse(message);
     const json = { type: dataFromClient.type };
 
     if (dataFromClient.type === typesDef.USER_EVENT) {
@@ -94,17 +79,23 @@ wss.on('message', function(message) {
       editorContent = dataFromClient.content;
       json.data = { editorContent, userActivity };
     }
+    wss.clients.forEach(function each(client) {
+      client.send(JSON.stringify(json));
+    });
+  });
 
-    sendMessage(JSON.stringify(json));
-  }
+  var userID = getUniqueID();
+  //console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
+  // You can rewrite this part of the code to accept only the requests from allowed origin
+  clients[userID] = connection;
+  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
 });
 
-// user disconnected
-wss.on('close', function(connection) {
+wss.on('close', (connection) => {
   console.log((new Date()) + " Peer " + userID + " disconnected.");
   const json = { type: typesDef.USER_EVENT };
   json.data = {users: users, userActivity: userActivity, message: "userleave"};
   delete clients[userID];
   delete users[userID];
-  sendMessage(JSON.stringify(json));
+  ws.broadcast(JSON.stringify(json));
 });
