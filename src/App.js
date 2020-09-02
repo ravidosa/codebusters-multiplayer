@@ -61,7 +61,7 @@ class Cipher extends Component {
         if (this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter) !== -1) {
             let newguess = this.state.questions[this.state.currQ].guesses;
             newguess[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)] = event.key;
-            console.log(this.state.selectedLetter, this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter), this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)], this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]), this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1), this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1)), this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1))])
+            //console.log(this.state.selectedLetter, this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter), this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)], this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]), this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1), this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1)), this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1))])
             this.setState({ guesses: newguess, selectedLetter: this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").charAt(this.state.questions[this.state.currQ].plaintext.replace(/[^ñA-Za-z]/g, "").indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.selectedLetter)]) + 1))]});
         }
       }
@@ -205,7 +205,7 @@ class Cipher extends Component {
         let transresponse = await fetch("https://cors-anywhere.herokuapp.com/https://google-translate-proxy.herokuapp.com/api/translate?query=" + data.content + "&sourceLang=en&targetLang=es", {mode: 'cors'});
         if (transresponse.status === 200) {
           let trans = await transresponse.json();
-          console.log(trans.extract.translation)
+          //console.log(trans.extract.translation)
           let questions = this.state.questions
           questions.push({plaintext: trans.extract.translation.replace('ñ','|').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('|','ñ').toLowerCase(), source: data.author, mapping: array, guesses: "___________________________".split(""), checked: false, alphabet: es_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: probType})
           this.setState({questions: questions, currQ: this.state.currQ + 1});
@@ -285,10 +285,6 @@ class Cipher extends Component {
   }
 
   async sendMarathon() {
-    console.log("ok!")
-    for (let i = 0; i < this.state.questions.length; i++) {
-      console.log(this.state.questions[i], this.computeScore(this.state.questions[i]))
-    }
     if (this.state.userInfo.record) {
       await this.checkProb();
       `await firebase.database().ref('results/' + this.state.userInfo.name + " (" + new Date() + ")").set({
@@ -439,7 +435,7 @@ class Cipher extends Component {
     for (let i = 0; i < 2; i++) {
       await this.getProb(["aristocrat", "atbash", "caesar", "patristocrat", "affine", "baconian", "xenocrypt"][Math.floor(Math.random() * 7)]);
     }
-    console.log(this.state.questions)
+    //console.log(this.state.questions)
     this.setState({probState: 1, score: [0, 0], marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0})
     this.startTimer();
     client.send(JSON.stringify({
@@ -463,7 +459,6 @@ class Cipher extends Component {
     client.onmessage = async (message) => {
       const dataFromServer = JSON.parse(message.data);
       let stateToChange = {userActivity: dataFromServer.data.userActivity};
-      console.log(dataFromServer)
       if (dataFromServer.type === "userevent") {
         stateToChange = this.state.userInfo
         stateToChange.team = Object.values(dataFromServer.data.users).filter(user => user.room === this.state.userInfo.roomCode);
