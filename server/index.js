@@ -48,11 +48,11 @@ wss.on('connection', function connection(ws) {
       userActivity.push(`${dataFromClient.username} joined room ${dataFromClient.room}`);
       if (!rooms[dataFromClient.room]) {
         rooms[dataFromClient.room] = {connections: [userID]}
-        json.data = {users: Array.from(wss.clients), message: "newroom", data: dataFromClient, clients: Array.from(wss.clients)};
+        json.data = {users: Array.from(wss.clients), message: "newroom", data: dataFromClient};
       }
       else {
         rooms[dataFromClient.room]["connections"].push(userID)
-        json.data = {users: Array.from(wss.clients), message: "joinroom", data: dataFromClient, clients: Array.from(wss.clients)};
+        json.data = {users: Array.from(wss.clients), message: "joinroom", data: dataFromClient};
       }
     }
 
