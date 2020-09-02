@@ -72,6 +72,7 @@ wss.on('connection', function connection(ws) {
       json.data = {message: "loading"};
     }
     wss.clients.forEach(function each(client) {
+      console.log(json)
       client.send(JSON.stringify(json));
     });
   });
