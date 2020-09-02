@@ -119,3 +119,6 @@ input {
 .bigh {
 	margin-top: 10px !important;
 }
+p {
+	margin-bottom: 0 !important;
+}

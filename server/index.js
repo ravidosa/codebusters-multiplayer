@@ -21,63 +21,55 @@ const getUniqueID = () => {
   return s4() + s4() + '-' + s4();
 };
 
-// I'm maintaining all active connections in this object
-const clients = {};
-// I'm maintaining all active users in this object
-const users = {};
 // I'm maintaining all active rooms in this object
 const rooms = {};
-// The current editor content is maintained here.
-let editorContent = null;
 // User activity history.
 let userActivity = [];
-
 
 const typesDef = {
   USER_EVENT: "userevent",
   CONTENT_CHANGE: "contentchange",
   MULTI_START: "multistart",
   MULTI_CHANGE: "multichange",
-  MULTI_COMPLETE: "multicomp"
+  MULTI_COMPLETE: "multicomp",
+  LOADING: "loading"
 }
 
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
-    console.log(message)
     const dataFromClient = JSON.parse(message);
-    const json = { type: dataFromClient.type };
+    const json = { type: dataFromClient.type};
 
     if (dataFromClient.type === typesDef.USER_EVENT) {
-      users[userID] = dataFromClient;
-      console.log(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`)
-      userActivity.push(`${dataFromClient.username} joined to edit the document in room ${dataFromClient.room}`);
+      ws.username = dataFromClient.username
+      ws.room = dataFromClient.room
+      console.log(`${dataFromClient.username} joined room ${dataFromClient.room}`)
+      userActivity.push(`${dataFromClient.username} joined room ${dataFromClient.room}`);
       if (!rooms[dataFromClient.room]) {
         rooms[dataFromClient.room] = {connections: [userID]}
-        json.data = {users: users, userActivity: userActivity, message: "newroom", data: dataFromClient};
+        json.data = {users: Array.from(wss.clients), message: "newroom", data: dataFromClient, clients: Array.from(wss.clients)};
       }
       else {
         rooms[dataFromClient.room]["connections"].push(userID)
-        json.data = {users: users, userActivity: userActivity, message: "joinroom", data: dataFromClient};
+        json.data = {users: Array.from(wss.clients), message: "joinroom", data: dataFromClient, clients: Array.from(wss.clients)};
       }
-      console.log(users, rooms)
     }
 
     else if (dataFromClient.type === typesDef.MULTI_START) {
-      json.data = {users: users, userActivity: userActivity, message: "multistart", questions: dataFromClient.questions};
+      json.data = {users: Array.from(wss.clients), message: "multistart", questions: dataFromClient.questions};
     }
 
     else if (dataFromClient.type === typesDef.MULTI_CHANGE) {
-      json.data = {users: users, userActivity: userActivity, message: "multichange", questions: dataFromClient.questions};
+      json.data = {users: Array.from(wss.clients), message: "multichange", questions: dataFromClient.questions};
     }
 
     else if (dataFromClient.type === typesDef.MULTI_COMPLETE) {
-      json.data = {users: users, userActivity: userActivity, message: "multicomp"};
+      json.data = {users: Array.from(wss.clients), message: "multicomp"};
     }
-    
-    else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-      editorContent = dataFromClient.content;
-      json.data = { editorContent, userActivity };
+
+    else if (dataFromClient.type === typesDef.LOADING) {
+      json.data = {message: "loading"};
     }
     wss.clients.forEach(function each(client) {
       client.send(JSON.stringify(json));
@@ -85,17 +77,6 @@ wss.on('connection', function connection(ws) {
   });
 
   var userID = getUniqueID();
-  //console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-  // You can rewrite this part of the code to accept only the requests from allowed origin
-  clients[userID] = connection;
-  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
-});
-
-wss.on('close', (connection) => {
-  console.log((new Date()) + " Peer " + userID + " disconnected.");
-  const json = { type: typesDef.USER_EVENT };
-  json.data = {users: users, userActivity: userActivity, message: "userleave"};
-  delete clients[userID];
-  delete users[userID];
-  ws.broadcast(JSON.stringify(json));
+  ws.userID = userID
+  console.log('connected: ' + userID + ' in ' + (Array.from(wss.clients).map(a => a.userID)).join(", "));
 });

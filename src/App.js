@@ -35,6 +35,7 @@ class Cipher extends Component {
       score: [0, 0],
       questions: [],
       probState: 3,
+      loading: false,
       marathon: false,
       multiplayer: false
     }
@@ -215,13 +216,13 @@ class Cipher extends Component {
             array.splice(array.indexOf("ñ"), 1)
             let questions = this.state.questions
             questions.push({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: "aristocrat"})
-            this.setState({questions: questions, probType: "Aristocrat Cipher", currQ: this.state.currQ + 1});
+            this.setState({questions: questions, type: "aristocrat", currQ: this.state.currQ + 1});
           }
           else {
             array.splice(array.indexOf("ñ"), 1)
             let questions = this.state.questions
             questions.push({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, type: "aristocrat"})
-            this.setState({questions: questions, probType: "Aristocrat Cipher", error: "Translation services are down; here's an aristocrat instead!", currQ: this.state.currQ + 1});
+            this.setState({questions: questions, type: "aristocrat", error: "Translation services are down; here's an aristocrat instead!", currQ: this.state.currQ + 1});
           }
         }
       }
@@ -431,12 +432,16 @@ class Cipher extends Component {
   async startMultiplayer() {
     await this.stopTimer();
     await this.resetTimer();
+    this.setState({loading: true})
+    client.send(JSON.stringify({
+      type: "loading"
+    }));
     await this.getProb("aristocrat");
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 18; i++) {
       await this.getProb(["aristocrat", "atbash", "caesar", "patristocrat", "affine", "baconian", "xenocrypt"][Math.floor(Math.random() * 7)]);
     }
     //console.log(this.state.questions)
-    this.setState({probState: 1, score: [0, 0], marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0})
+    this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0})
     this.startTimer();
     client.send(JSON.stringify({
       questions: this.state.questions,
@@ -458,7 +463,8 @@ class Cipher extends Component {
     };
     client.onmessage = async (message) => {
       const dataFromServer = JSON.parse(message.data);
-      let stateToChange = {userActivity: dataFromServer.data.userActivity};
+      console.log(dataFromServer)
+      let stateToChange = {};
       if (dataFromServer.type === "userevent") {
         stateToChange = this.state.userInfo
         stateToChange.team = Object.values(dataFromServer.data.users).filter(user => user.room === this.state.userInfo.roomCode);
@@ -467,7 +473,7 @@ class Cipher extends Component {
       else if (dataFromServer.type === "multistart") {
         await this.stopTimer();
         await this.resetTimer();
-        this.setState({probState: 1, score: [0, 0], marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0, questions: dataFromServer.data.questions})
+        this.setState({probState: 1, score: [0, 0], loading: false, marathon: false, multiplayer: true, probType: "Aristocrat Cipher", currQ: 0, questions: dataFromServer.data.questions})
         this.startTimer();
       }
       else if (dataFromServer.type === "multichange") {
@@ -476,10 +482,19 @@ class Cipher extends Component {
       else if (dataFromServer.type === "multicomp") {
         this.setState({probState: 2})
       }
+      else if (dataFromServer.type === "loading") {
+        this.setState({loading: true})
+      }
       else if (dataFromServer.type === "contentchange") {
         stateToChange.text = dataFromServer.data.editorContent || contentDefaultMessage;
       }
 
+    };
+  }
+
+  componentWillUnmount() {
+    client.onclose = () => {
+      console.log('WebSocket Client Disonnected', this.state.name);
     };
   }
   
@@ -672,13 +687,16 @@ class Cipher extends Component {
       )}
       {(this.state.probState === 5) && (
         <div className={`box content`}>
-          <h1>waiting room</h1>
+          <h1>{`waiting room (${this.state.userInfo.roomCode})`}</h1>
           {
             this.state.userInfo.team.map((user, index) => {
               return <p>{user.username}</p>
           })
           }
           <button onClick={this.startMultiplayer}>start</button>
+          {(this.state.loading) && (
+            <p>loading...</p>
+          )}
         </div>
       )}
     </div>;
