@@ -160,7 +160,7 @@ class App extends Component {
       this.setState({plaintext: data[0], mapping: mapping, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint});
     }
     else {
-      let response = await fetch('http://api.quotable.io/random');
+      let response = await fetch('https://api.quotable.io/random');
       let data = await response.json();
       if (probType === "aristocrat" || probType === "patristocrat" || probType === "affine") {
         const k = Math.floor(Math.random() * 12);
