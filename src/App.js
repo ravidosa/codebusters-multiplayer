@@ -89,6 +89,7 @@ class App extends Component {
   }
 
   async getProb(probType) {
+    this.setState({probType: (probType === 'aristocrat' ? "Aristocrat Cipher" : probType === 'affine' ? "Affine Cipher" : probType === 'patristocrat' ? "Patristocrat Cipher" : probType === 'atbash' ? "Atbash Cipher" : probType === 'caesar' ? "Caesar Cipher" : probType === 'xenocrypt' ? "Xenocrypt" : probType === 'baconian' ? "Baconian Cipher": null)})
     let array = (probType !== 'xenocrypt' ? en_alphabet : es_alphabet).split("");
     let a, b = null;
     let hint, encoding = "";
@@ -105,9 +106,9 @@ class App extends Component {
       }
       else if ((k < 5 && probType === "aristocrat") || (k < 4 && probType === "patristocrat") || (k < 9 && probType === "xenocrypt")) {
         encoding = "k1";
-        let k1response = await fetch('https://cors-anywhere.herokuapp.com/https://random-word-api.herokuapp.com/word');
+        let k1response = await fetch('https://api.allorigins.win/raw?url=https://random-word-api.herokuapp.com/word');
         let k1data = await k1response.json();
-        k1data = k1data[0].split('').filter((item, pos, self) => {return self.indexOf(item) === pos;}).join('');
+        k1data = k1data[0].split('').filter((item, pos, self) => {return self.indexOf(item) == pos;}).join('');
         array = (k1data + array.join("").replace(new RegExp(k1data.split("").join("|"), "gi"), "")).split("");
         const l = Math.floor(Math.random() * (array.length - k1data.length));
         for (let i = array.length; i > l; i--) {
@@ -121,9 +122,9 @@ class App extends Component {
       }
       else if ((k < 6 && probType === "aristocrat") || (k < 6 && probType === "patristocrat") || (k < 12 && probType === "xenocrypt")) {
         encoding = "k2";
-        let k2response = await fetch('https://cors-anywhere.herokuapp.com/https://random-word-api.herokuapp.com/word');
+        let k2response = await fetch('https://api.allorigins.win/raw?url=https://random-word-api.herokuapp.com/word');
         let k2data = await k2response.json();
-        k2data = k2data[0].split('').filter((item, pos, self) => {return self.indexOf(item) === pos;}).join('');
+        k2data = k2data[0].split('').filter((item, pos, self) => {return self.indexOf(item) == pos;}).join('');
         array = (k2data + array.join("").replace(new RegExp(k2data.split("").join("|"), "gi"), "")).split("");
         const l = Math.floor(Math.random() * (array.length - k2data.length));
         for (let i = array.length; i > l; i--) {
@@ -148,7 +149,7 @@ class App extends Component {
     }
 
     if (probType === "baconian") {
-      let response = await fetch('https://cors-anywhere.herokuapp.com/https://random-word-api.herokuapp.com/word');
+      let response = await fetch('https://api.allorigins.win/raw?url=https://random-word-api.herokuapp.com/word');
       let data = await response.json();
       const k = Math.floor(Math.random() * 3);
       if (k < 1) {
@@ -156,12 +157,10 @@ class App extends Component {
       }
       let obj = alt_baconian[Math.floor(Math.random() * alt_baconian.length)];
       let mapping = baconian.map((key, value) => {return key.replace(new RegExp(Object.keys(obj).join("|"), "gi"), (matched) => {return obj[matched];})})
-      let questions = this.state.questions
-      questions.push({plaintext: data[0], mapping: mapping, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, type: probType, encoding: encoding, mangle: mangle, error: "", type: probType})
-      this.setState({questions: questions, currQ: this.state.currQ + 1});
+      this.setState({plaintext: data[0], mapping: mapping, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint});
     }
     else {
-      let response = await fetch('https://cors-anywhere.herokuapp.com/https://api.quotable.io/random');
+      let response = await fetch('http://api.quotable.io/random');
       let data = await response.json();
       if (probType === "aristocrat" || probType === "patristocrat" || probType === "affine") {
         const k = Math.floor(Math.random() * 12);
@@ -191,36 +190,26 @@ class App extends Component {
         }
       }
       if (probType === "aristocrat" || probType === "atbash" || probType === "caesar") {
-        let questions = this.state.questions
-        questions.push({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: probType})
-        this.setState({questions: questions, currQ: this.state.currQ + 1});
+        this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
       }
       else if (probType === "patristocrat" || probType === "affine") {
-        let questions = this.state.questions
-        questions.push({plaintext: data.content.replace(/[^A-Za-z]/g, "").toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: probType})
-        this.setState({questions: questions, currQ: this.state.currQ + 1});
+        this.setState({plaintext: data.content.replace(/[^A-Za-z]/g, "").toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
       }
       else if (probType === "xenocrypt") {
-        let transresponse = await fetch("https://cors-anywhere.herokuapp.com/https://google-translate-proxy.herokuapp.com/api/translate?query=" + data.content + "&sourceLang=en&targetLang=es", {mode: 'cors'});
+        let transresponse = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(data.content)}`, {mode: 'cors'});
         if (transresponse.status === 200) {
+
           let trans = await transresponse.json();
-          //console.log(trans.extract.translation)
-          let questions = this.state.questions
-          questions.push({plaintext: trans.extract.translation.replace('ñ','|').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('|','ñ').toLowerCase(), source: data.author, mapping: array, guesses: "___________________________".split(""), checked: false, alphabet: es_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: probType})
-          this.setState({questions: questions, currQ: this.state.currQ + 1});
+          this.setState({plaintext: trans[0][0][0].replace('ñ','|').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('|','ñ').toLowerCase(), source: data.author, mapping: array, guesses: "___________________________".split(""), checked: false, alphabet: es_alphabet,  hint: hint, encoding: encoding, mangle: mangle, error: ""});
         }
         else {
-          if (this.state.marathon) {
+          if (this.props.marathon) {
             array.splice(array.indexOf("ñ"), 1)
-            let questions = this.state.questions
-            questions.push({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: "", type: "aristocrat"})
-            this.setState({questions: questions, type: "aristocrat", currQ: this.state.currQ + 1});
+            this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: ""});
           }
           else {
             array.splice(array.indexOf("ñ"), 1)
-            let questions = this.state.questions
-            questions.push({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, type: "aristocrat"})
-            this.setState({questions: questions, type: "aristocrat", error: "Translation services are down; here's an aristocrat instead!", currQ: this.state.currQ + 1});
+            this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: "Translation services are down; here's an aristocrat instead!"});
           }
         }
       }
