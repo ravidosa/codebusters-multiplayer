@@ -54,69 +54,68 @@ class App extends Component {
   }
 
   setLetter(event) {
-      console.log(event.key)
-      if (event.key == "`" || (event.key >= "a" && event.key <= "z")) {
-        if (event.key == "`") {
-          event.key = "ñ";
-        }
-      if (this.state.probType !== "Baconian Cipher") {
-        if (this.state.alphabet.indexOf(this.state.selectedLetter) !== -1) {
-            let newguess = this.state.guesses;
-            newguess[this.state.alphabet.indexOf(this.state.selectedLetter)] = event.key;
-            let split = this.state.plaintext.split(" ");
-            let ind = this.state.selectedIndex.split("-");
-            let nextIndex = null;
-            let nextLetter = "";
-            if (parseInt(ind[1]) != split[parseInt(ind[0])].length - 1) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) + 1])];
-              nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) + 1}`;
-            }
-            else if (parseInt(ind[0]) < split.length) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) + 1][0])];
-              nextIndex = `${parseInt(ind[0]) + 1}-0}`;
-            }
-            this.setState({ guesses: newguess, selectedLetter: nextLetter, selectedIndex: nextIndex});
-          }
-        }
-        if (this.state.probType === "Baconian Cipher") {
+    if (event.key == "`" || (event.key >= "a" && event.key <= "z")) {
+      if (event.key == "`") {
+        event.key = "ñ";
+      }
+    if (this.state.probType !== "Baconian Cipher") {
+      if (this.state.alphabet.indexOf(this.state.selectedLetter) !== -1) {
           let newguess = this.state.guesses;
-          newguess[this.state.mapping.indexOf(this.state.selectedLetter)] = event.key;
-          this.setState({ guesses: newguess});
+          newguess[this.state.alphabet.indexOf(this.state.selectedLetter)] = event.key;
+          let split = this.state.plaintext.split(" ");
+          let ind = this.state.selectedIndex.split("-");
+          let nextIndex = null;
+          let nextLetter = "";
+          if (parseInt(ind[1]) != split[parseInt(ind[0])].length - 1) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) + 1])];
+            nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) + 1}`;
+          }
+          else if (parseInt(ind[0]) < split.length) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) + 1][0])];
+            nextIndex = `${parseInt(ind[0]) + 1}-0`;
+          }
+          this.setState({ guesses: newguess, selectedLetter: nextLetter, selectedIndex: nextIndex});
         }
       }
-      else if (this.state.probType !== "Baconian Cipher") {
-        if (event.key == "ArrowLeft") {
-          let split = this.state.plaintext.split(" ");
-            let ind = this.state.selectedIndex.split("-");
-            let nextIndex = null;
-            let nextLetter = "";
-            if (parseInt(ind[1]) != 0) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) - 1])];
-              nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) - 1}`;
-            }
-            else if (parseInt(ind[0]) > 0) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) - 1][split[parseInt(ind[0]) - 1].length - 1])];
-              nextIndex = `${parseInt(ind[0]) + 1}-${split[parseInt(ind[0]) - 1].length - 1}}`;
-            }
-            this.setState({selectedLetter: nextLetter, selectedIndex: nextIndex});
-        }
-        else if (event.key == "ArrowRight") {
-          let split = this.state.plaintext.split(" ");
-            let ind = this.state.selectedIndex.split("-");
-            let nextIndex = null;
-            let nextLetter = "";
-            if (parseInt(ind[1]) != split[parseInt(ind[0])].length - 1) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) + 1])];
-              nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) + 1}`;
-            }
-            else if (parseInt(ind[0]) < split.length) {
-              nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) + 1][0])];
-              nextIndex = `${parseInt(ind[0]) + 1}-0}`;
-            }
-            this.setState({selectedLetter: nextLetter, selectedIndex: nextIndex});
-        }
+      if (this.state.probType === "Baconian Cipher") {
+        let newguess = this.state.guesses;
+        newguess[this.state.mapping.indexOf(this.state.selectedLetter)] = event.key;
+        this.setState({ guesses: newguess});
       }
     }
+    else if (this.state.probType !== "Baconian Cipher") {
+      if (event.key == "ArrowLeft") {
+        let split = this.state.plaintext.split(" ");
+          let ind = this.state.selectedIndex.split("-");
+          let nextIndex = null;
+          let nextLetter = "";
+          if (parseInt(ind[1]) != 0) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) - 1])];
+            nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) - 1}`;
+          }
+          else if (parseInt(ind[0]) > 0) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) - 1][split[parseInt(ind[0]) - 1].length - 1])];
+            nextIndex = `${parseInt(ind[0]) - 1}-${split[parseInt(ind[0]) - 1].length - 1}`;
+          }
+          this.setState({selectedLetter: nextLetter, selectedIndex: nextIndex});
+      }
+      else if (event.key == "ArrowRight") {
+        let split = this.state.plaintext.split(" ");
+          let ind = this.state.selectedIndex.split("-");
+          let nextIndex = null;
+          let nextLetter = "";
+          if (parseInt(ind[1]) != split[parseInt(ind[0])].length - 1) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0])][parseInt(ind[1]) + 1])];
+            nextIndex = `${parseInt(ind[0])}-${parseInt(ind[1]) + 1}`;
+          }
+          else if (parseInt(ind[0]) < split.length) {
+            nextLetter = this.state.mapping[this.state.alphabet.indexOf(split[parseInt(ind[0]) + 1][0])];
+            nextIndex = `${parseInt(ind[0]) + 1}-0`;
+          }
+          this.setState({selectedLetter: nextLetter, selectedIndex: nextIndex});
+      }
+    }
+  }
 
   selectLetter(event) {
     if (this.state.questions[this.state.currQ].type !== "baconian") {
@@ -567,14 +566,14 @@ class App extends Component {
           <p className="warning">{this.state.questions[this.state.currQ].error}</p>
         )}
         {probType !== "Baconian Cipher" && (
-            this.state.questions[this.state.currQ].plaintext.toLowerCase().split(" ").map((word, index) => {
+            this.state.questions[this.state.currQ].plaintext.toLowerCase().split(" ").map((word, windex) => {
                 return(
                     <div className="word" onClick={this.selectLetter}>
                         {
-                            word.split("").map((letter, index) => {
+                            word.split("").map((letter, lindex) => {
                                 if (this.state.questions[this.state.currQ].alphabet.indexOf(letter) !== -1) {
                                     return(
-                                        <div className="letter">
+                                        <div className={`letter ${`${windex}-${lindex}` === this.state.selectedIndex ? "letter-selected" : ""}`} id={`${windex}-${lindex}`}>
                                             <div className={`${this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(letter)] === this.state.selectedLetter ? "selected" : ""}`}>{this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(letter)]}</div>
                                             <div>{this.state.questions[this.state.currQ].guesses[this.state.questions[this.state.currQ].alphabet.indexOf(this.state.questions[this.state.currQ].mapping[this.state.questions[this.state.currQ].alphabet.indexOf(letter)])]}</div>
                                         </div>
@@ -582,7 +581,7 @@ class App extends Component {
                                 }
                                 else {
                                     return(
-                                        <div className="letter">
+                                        <div className={`letter ${`${windex}-${lindex}` === this.state.selectedIndex ? "letter-selected" : ""}`} id={`${windex}-${lindex}`}>
                                             <div>{letter}</div>
                                             <div>&nbsp;</div>
                                         </div>
