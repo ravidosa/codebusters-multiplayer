@@ -200,60 +200,60 @@ class App extends Component {
       this.setState({plaintext: data[0], mapping: mapping, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint});
     }
     else {
-      let response = await fetch('https://api.quotable.io/random');
-      let data = await response.json();
-      if (probType === "aristocrat" || probType === "patristocrat" || probType === "affine") {
-        const k = Math.floor(Math.random() * 12);
-        if (k < 2 && probType === "aristocrat") {
-          data.content = data.content.split(" ").map((key) => {return (mangled_words[key.toLowerCase()] || key)}).join(" ");
-          mangle = true;
+        let response = await fetch(`https://api.allorigins.win/raw?url=https://zenquotes.io?api=random&t=${Date.now()}`);
+        let data = await response.json();
+        if (probType === "aristocrat" || probType === "patristocrat" || probType === "affine") {
+          const k = Math.floor(Math.random() * 12);
+          if (k < 2 && probType === "aristocrat") {
+            data[0].q = data[0].q.split(" ").map((key) => {return (mangled_words[key.toLowerCase()] || key)}).join(" ");
+            mangle = true;
+          }
+          if ((k < 6 && probType === "patristocrat") || (k < 3 && probType === "aristocrat")) {
+            const l = Math.floor(Math.random() * 8);
+            if (l < 3.5) {
+              hint = "The message starts with " + data[0].q.replace(/[^A-Za-z]/g, "").toLowerCase().slice(0, l + 1)
+            }
+            else {
+              hint = "The message ends with " + data[0].q.replace(/[^A-Za-z]/g, "").toLowerCase().slice(3 - l)
+            }
+          }
+          else if (probType === "affine") {
+            if (k < 6) {
+              hint = "a = " + a + ", b = " + b;
+            }
+            else if (k < 9) {
+              hint = "The message starts with " + data[0].q.replace(/[^A-Za-z]/g, "").toLowerCase().slice(0, 2)
+            }
+            else {
+              hint = "The message ends with " + data[0].q.replace(/[^A-Za-z]/g, "").toLowerCase().slice(-2)
+            }
+          }
         }
-        if ((k < 6 && probType === "patristocrat") || (k < 3 && probType === "aristocrat")) {
-          const l = Math.floor(Math.random() * 8);
-          if (l < 3.5) {
-            hint = "The message starts with " + data.content.replace(/[^A-Za-z]/g, "").toLowerCase().slice(0, l + 1)
-          }
-          else {
-            hint = "The message ends with " + data.content.replace(/[^A-Za-z]/g, "").toLowerCase().slice(3 - l)
-          }
+        if (probType === "aristocrat" || probType === "atbash" || probType === "caesar") {
+          this.setState({plaintext: data[0].q.toLowerCase(), source: data[0].a, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
         }
-        else if (probType === "affine") {
-          if (k < 6) {
-            hint = "a = " + a + ", b = " + b;
-          }
-          else if (k < 9) {
-            hint = "The message starts with " + data.content.replace(/[^A-Za-z]/g, "").toLowerCase().slice(0, 2)
-          }
-          else {
-            hint = "The message ends with " + data.content.replace(/[^A-Za-z]/g, "").toLowerCase().slice(-2)
-          }
+        else if (probType === "patristocrat" || probType === "affine") {
+          this.setState({plaintext: data[0].q.replace(/[^A-Za-z]/g, "").toLowerCase(), source: data[0].a, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
         }
-      }
-      if (probType === "aristocrat" || probType === "atbash" || probType === "caesar") {
-        this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
-      }
-      else if (probType === "patristocrat" || probType === "affine") {
-        this.setState({plaintext: data.content.replace(/[^A-Za-z]/g, "").toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet, hint: hint, encoding: encoding, mangle: mangle, error: ""});
-      }
-      else if (probType === "xenocrypt") {
-        let transresponse = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(data.content)}`, {mode: 'cors'});
-        if (transresponse.status === 200) {
+        else if (probType === "xenocrypt") {
+          let transresponse = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(data[0].q)}`, {mode: 'cors'});
+          if (transresponse.status === 200) {
 
-          let trans = await transresponse.json();
-          this.setState({plaintext: trans[0][0][0].replace('ñ','|').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('|','ñ').toLowerCase(), source: data.author, mapping: array, guesses: "___________________________".split(""), checked: false, alphabet: es_alphabet,  hint: hint, encoding: encoding, mangle: mangle, error: ""});
-        }
-        else {
-          if (this.props.marathon) {
-            array.splice(array.indexOf("ñ"), 1)
-            this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: ""});
+            let trans = await transresponse.json();
+            this.setState({plaintext: trans[0][0][0].replace('ñ','|').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('|','ñ').toLowerCase(), source: data[0].a, mapping: array, guesses: "___________________________".split(""), checked: false, alphabet: es_alphabet,  hint: hint, encoding: encoding, mangle: mangle, error: ""});
           }
           else {
-            array.splice(array.indexOf("ñ"), 1)
-            this.setState({plaintext: data.content.toLowerCase(), source: data.author, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: "Translation services are down; here's an aristocrat instead!"});
+            if (this.props.marathon) {
+              array.splice(array.indexOf("ñ"), 1)
+              this.setState({plaintext: data[0].q.toLowerCase(), source: data[0].a, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: ""});
+            }
+            else {
+              array.splice(array.indexOf("ñ"), 1)
+              this.setState({plaintext: data[0].q.toLowerCase(), source: data[0].a, mapping: array, guesses: "__________________________".split(""), checked: false, alphabet: en_alphabet,  hint: hint, encoding: encoding, mangle: mangle, probType: "Aristocrat Cipher", error: "Translation services are down; here's an aristocrat instead!"});
+            }
           }
         }
       }
-    }
   }
 
   nextProb() {
